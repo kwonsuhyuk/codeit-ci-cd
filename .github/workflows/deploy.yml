@@ -33,7 +33,7 @@ jobs:
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }} # GitHub Secrets에서 가져온 값
 
-        run: npx @sentry/cli upload-sourcemaps ./out
+        run: npx @sentry/cli sourcemaps ./out
 
       - name: Deploy to Vercel
         run: npx vercel --prod
