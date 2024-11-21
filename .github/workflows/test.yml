@@ -1,21 +1,42 @@
-name: API workflow
+name: CI with Codecov
 
-on: [push, pull_request]
+on:
+  push:
+    branches: ["main"] # main 브랜치로 push 시 실행
+  pull_request:
+    branches: ["main"] # main 브랜치에 PR 생성 시 실행
+
+permissions:
+  contents: read # checkout을 위한 권한
+  checks: write # Codecov 업로드를 위한 권한
 
 jobs:
-  build:
+  test-and-coverage:
     runs-on: ubuntu-latest
-    name: Test python API
+
+    strategy:
+      matrix:
+        node-version: [18, 20]
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Install requirements
-        run: pip install -r requirements.txt
-      - name: Run tests and collect coverage
-        run: pytest --cov .
-      - name: Upload coverage reports to Codecov
-        run: |
-          # Replace `linux` below with the appropriate OS
-          # Options are `alpine`, `linux`, `macos`, `windows`
-          curl -Os https://cli.codecov.io/latest/linux/codecov
-          chmod +x codecov
-          ./codecov --verbose upload-process --fail-on-error -t ${{ secrets.CODECOV_TOKEN }} -n 'service'-${{ github.run_id }} -F service -f coverage-service.xml
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⎔ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: ▶️ Run tests with coverage
+        run: npm test -- --coverage # Jest로 커버리지 리포트 생성
+
+      - name: 📤 Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # 공개 리포지토리라면 이 줄 생략 가능
+          files: ./coverage/lcov.info # Jest가 생성한 커버리지 리포트 경로
+          flags: unittests
+          name: Codecov Report
