@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: ["main"] # main 브랜치에 PR 생성 시 실행
 
-permissions:
-  contents: read # checkout을 위한 권한
-  checks: write # Codecov 업로드를 위한 권한
-
 jobs:
   test-and-coverage:
     runs-on: ubuntu-latest
@@ -36,7 +32,5 @@ jobs:
       - name: 📤 Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          token: ${{ secrets.CODECOV_TOKEN }} # 공개 리포지토리라면 이 줄 생략 가능
-          files: ./coverage/lcov.info # Jest가 생성한 커버리지 리포트 경로
           flags: unittests
           name: Codecov Report
