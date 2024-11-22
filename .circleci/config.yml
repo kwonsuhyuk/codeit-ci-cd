@@ -1,24 +1,12 @@
 version: 2.1
 orbs:
-  cypress: cypress-io/cypress@3 # Cypress orb를 사용
-
-jobs:
-  test:
-    docker:
-      - image: cypress/included:10.0.0 # Cypress가 포함된 Docker 이미지
-    steps:
-      - checkout # 코드를 체크아웃합니다.
-      - run:
-          name: Install dependencies
-          command: npm ci # 의존성 설치
-      - run:
-          name: Start application
-          command: npm run start & # 백그라운드로 서버 시작
-      - cypress/run:
-          start: npm run start # 수정된 부분: Cypress가 서버 시작 명령을 기다리도록 수정
-
+  # "cypress-io/cypress@3" installs the latest published
+  # version "s.x.y" of the orb. We recommend you then use
+  # the strict explicit version "cypress-io/cypress@3.x.y"
+  # to lock the version and prevent unexpected CI changes
+  cypress: cypress-io/cypress@3
 workflows:
-  version: 2
   build:
     jobs:
-      - test # test job을 워크플로우에 추가
+      - cypress/run: # "run" job comes from "Cypress" orb
+          start-command: "npm run start"
